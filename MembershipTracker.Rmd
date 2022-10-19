@@ -1,5 +1,5 @@
 ---
-title: "Adventures In Golf"
+title: "Adventures In Golf: Thornbury Membership Edition"
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
@@ -30,7 +30,7 @@ This page is designed to keep track of our first golf membership at Thornbury Go
 library(tidyverse)
 # Individual Hole Performance
 holes<- read.csv("MemberHoleScores.csv", header = TRUE, stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
-holes$Date<- as.Date(holes$Date, format = "%d/%m/%y")
+holes$Date<- as.Date(holes$Date, format = "%d/%m/%Y") #convert from character class. capital Y is important for 4 digit year input
 holes$Hole<- as.factor(holes$Hole)
 holes$Course<- as.factor(holes$Course)
 holescores<- pivot_longer(data = holes, cols = c("Ben", "Doug", "Lew"), names_to = c("Player"), values_to = "Score")
@@ -64,30 +64,40 @@ nineholers<- golfscores1$holescoresFULL[which(lapply(names(golfscores1$holescore
 golfscores1$holescoresFULL<- golfscores1$holescoresFULL[-which(lapply(names(golfscores1$holescoresFULL), function(x) length(unique(golfscores1$holescoresFULL[[x]][["Hole"]]))) == 9)] #remove 9 hole rounds for score tracker graph
 
 #calculate total score for each date for each player. remove any na rounds
-fullscores<- list(fullscoresFULL = data.frame(na.omit(cbind(Score = unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) sum(golfscores1$holescoresFULL[[x]][["Score"]][golfscores1$holescoresFULL[[x]][["Player"]] == y])))), Player = c(rep("Ben", length(unique(golfscores1[["holescoresFULL"]]))), rep("Doug", length(unique(golfscores1[["holescoresFULL"]]))), rep("Lew", length(unique(golfscores1[["holescoresFULL"]])))), Date = as.Date(unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) unique(golfscores1$holescoresFULL[[x]][["Date"]][golfscores1$holescoresFULL[[x]][["Player"]] == y])))), origin = "1970-01-01")))), PAR3scores = data.frame(na.omit(cbind(Score = unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresPAR3), function(x) sum(golfscores1$holescoresPAR3[[x]][["Score"]][golfscores1$holescoresPAR3[[x]][["Player"]] == y])))), Player = c(rep("Ben", length(unique(golfscores1[["holescoresPAR3"]]))), rep("Doug", length(unique(golfscores1[["holescoresPAR3"]]))), rep("Lew", length(unique(golfscores1[["holescoresPAR3"]])))), Date = as.Date(unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) unique(golfscores1$holescoresFULL[[x]][["Date"]][golfscores1$holescoresFULL[[x]][["Player"]] == y])))), origin = "1970-01-01")))))
+fullscores<- list(fullscoresFULL = data.frame(na.omit(cbind(Score = unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) sum(golfscores1$holescoresFULL[[x]][["Score"]][golfscores1$holescoresFULL[[x]][["Player"]] == y])))), Player = c(rep("Ben", length(unique(golfscores1[["holescoresFULL"]]))), rep("Doug", length(unique(golfscores1[["holescoresFULL"]]))), rep("Lew", length(unique(golfscores1[["holescoresFULL"]])))), Date = as.Date(unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) unique(golfscores1$holescoresFULL[[x]][["Date"]][golfscores1$holescoresFULL[[x]][["Player"]] == y])))), origin = "1970-01-01")))), PAR3scores = data.frame(na.omit(cbind(Score = unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresPAR3), function(x) sum(golfscores1$holescoresPAR3[[x]][["Score"]][golfscores1$holescoresPAR3[[x]][["Player"]] == y])))), Player = c(rep("Ben", length(unique(golfscores1[["holescoresPAR3"]]))), rep("Doug", length(unique(golfscores1[["holescoresPAR3"]]))), rep("Lew", length(unique(golfscores1[["holescoresPAR3"]])))), Date = as.Date(unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresPAR3), function(x) unique(golfscores1$holescoresPAR3[[x]][["Date"]][golfscores1$holescoresPAR3[[x]][["Player"]] == y])))), origin = "1970-01-01")))))
 
-#NOTE: when R converts dates to numerics (as it does when unlist() strips class), convert back using as.Date and use the origin "1970-01-01". Ohter programs may use different origins so there is no default in R. Because the conversion takes place in R in this example, class(x)<- "Date" will convert the numberic back to the proper date.
+#NOTE: when R converts dates to numerics (as it does when unlist() strips class), convert back using as.Date and use the origin "1970-01-01". Ohter programs may use different origins so there is no default in R. Because the conversion takes place in R in this example, class(x)<- "Date" will convert the numeric back to the proper date.
 
 #work out how to deal with 9 hole rounds. Split them? Front and back nine? or just full rounds and 9 holes?
 
 #formatting headaches
-class(fullscores$fullscoresFULL$Date)<- "Date" #format as date
-class(fullscores$PAR3scores$Date)<- "Date"
+fullscores$fullscoresFULL$Date<- as.Date(as.numeric(fullscores$fullscoresFULL$Date), origin = "1970-01-01") #format as date
+fullscores$PAR3scores$Date<- as.Date(as.numeric(fullscores$PAR3scores$Date), origin = "1970-01-01") #format as date
 fullscores$fullscoresFULL$Score<- as.numeric(as.character(fullscores$fullscoresFULL$Score)) #format as nummeric
 fullscores$PAR3scores$Score<- as.numeric(as.character(fullscores$PAR3scores$Score))
 
 #plot (with complete lines by ignoring missing values)
 #Full course
 ggplot(data = fullscores$fullscoresFULL[!is.na(fullscores$fullscoresFULL$Score),], aes(x = Date, y = Score, group = Player)) + 
-  geom_line(aes(color = Player), size = 1.7) + geom_point() + labs(title = "Total Scores for every (full course) round played so far", subtitle = "Note that 9 hole rounds are not included") + scale_x_date(date_breaks = "1 week", date_labels = "%d %b") + geom_hline(yintercept = 100, lty = 2, col = "red") + transition_reveal(Date)
+  geom_line(aes(color = Player), size = 1.7) + geom_point() + labs(title = "Total Scores for every (full course) round played so far", subtitle = "Note that 9 hole rounds are not included") + scale_x_date(date_breaks = "1 week", date_labels = "%d %b") + geom_hline(yintercept = 100, lty = 2, col = "red") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + transition_reveal(Date)
+
+library(plotly)
+ggplotly(ggplot(data = fullscores$fullscoresFULL[!is.na(fullscores$fullscoresFULL$Score),], aes(x = Date, y = Score, group = Player, text = paste0("Player: ", Player, "\n",
+                                    "Score: ", Score, "\n",
+                                    "Date: ", Date))) + 
+  geom_line(aes(color = Player), size = 1) + geom_point() + labs(title = "Total Scores for every (full course) round played so far", subtitle = "Note that 9 hole rounds are not included") + scale_x_date(date_breaks = "1 week", date_labels = "%d %b") + geom_hline(yintercept = 100, lty = 2, col = "red") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)), tooltip = "text")
 
 #weird floating shapes - get rid!
+
+Last3Rounds<- sapply(unique(fullscores$fullscoresFULL$Player), function(x) tail(subset(fullscores$fullscoresFULL[!is.na(fullscores$fullscoresFULL$Score), "Score"], subset = fullscores$fullscoresFULL$Player == x), n = 3), USE.NAMES = T)
+
+Last3Rounds %>% kableExtra::kbl(caption = "Scores for the last 3 (full) rounds played on the big boy course", align = "c", escape = FALSE, digits = 0) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria")
 ```
 
 ```{r aanimatepar3, warning=FALSE}
 #Par 3 course
 ggplot(data = fullscores$PAR3scores[!is.na(fullscores$PAR3scores$Score),], aes(x = Date, y = Score, group = Player)) + 
-  geom_line(aes(color = Player), size = 1.7) + geom_point(aes(shape = NULL)) + labs(title = "Total Scores for every (short course) round played so far") + scale_x_date(date_breaks = "1 week", date_labels = "%d %b") + transition_reveal(Date)
+  geom_line(aes(color = Player), size = 1.7) + geom_point(aes(shape = NULL)) + labs(title = "Total Scores for every (short course) round played so far") + scale_x_date(date_breaks = "1 week", date_labels = "%d %b") + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + transition_reveal(Date)
 ```
 
 ```{r summarytable}
@@ -95,29 +105,35 @@ ggplot(data = fullscores$PAR3scores[!is.na(fullscores$PAR3scores$Score),], aes(x
 SumTable<- sapply(unique(fullscores$fullscoresFULL$Player), function(x) summary(subset(fullscores$fullscoresFULL[!is.na(fullscores$fullscoresFULL$Score), "Score"], subset = fullscores$fullscoresFULL$Player == x)), USE.NAMES = T) 
 rownames(SumTable)<-  c("Best", "1st Quartile", "Median", "Average", "3rd Quartile", "Worst")
 
-SumTable %>% kableExtra::kbl(caption = "Summary of our rounds as members", align = "c", escape = FALSE, digits = 0) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria")
+SumTable %>% kableExtra::kbl(caption = "Summary of our rounds as members (full course)", align = "c", escape = FALSE, digits = 0) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria")
+
+#Summary of Round totals for each player (par 3)
+SumTable<- sapply(unique(fullscores$PAR3scores$Player), function(x) summary(subset(fullscores$PAR3scores[!is.na(fullscores$PAR3scores$Score), "Score"], subset = fullscores$PAR3scores$Player == x)), USE.NAMES = T) 
+rownames(SumTable)<-  c("Best", "1st Quartile", "Median", "Average", "3rd Quartile", "Worst")
+
+SumTable %>% kableExtra::kbl(caption = "Summary of our rounds as members (Par 3 course)", align = "c", escape = FALSE, digits = 0) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria")
 ```
 
-Breaking the magic *100* is a intimidating mountain to climb. **Doug managed it first at Thornbury on 20/09/21**. So far, since we joined on 31/07/2021, there have been a total of `r sum(fullscores$fullscoresFULL$Score < 100)` sub hundy rounds. Here is the roll of honour:
+Breaking the magic *100* is a intimidating mountain to climb. **Doug managed it first at Thornbury on 20/09/21**. So far, since we became members on 31/07/2021, there have been a total of `r sum(fullscores$fullscoresFULL$Score < 100)` sub hundy rounds. Here is the roll of honour:
 
 ```{r subhundyrollofhonour}
 fullscores$fullscoresFULL[which(fullscores$fullscoresFULL$Score < 100),] %>% kableExtra::kbl(caption = "Sub-Hundy Roll of Honour", align = "c", escape = FALSE, digits = 0, row.names = FALSE) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria") %>%  row_spec(1:nrow(fullscores$fullscoresFULL[which(fullscores$fullscoresFULL$Score < 100),]), bold = T, background = "#c9b037")
 ```
 
-# Number of rounds played.
+# Number of rounds played
 
 We want to make sure we use our memberships to the absolute max so it's worth tracking how many rounds we've played.
 
 ```{r RoundsPlayed}
 #+1 par3 round that we lost the scorecard for!
 
-RoundSummary<- rbind(Full = sapply(unique(holescoresFULL$Player), function(x) holescoresFULL %>% filter(Player == x) %>% filter(!duplicated(Date)) %>% na.omit() %>% nrow(), USE.NAMES = T), Par3 = sapply(unique(holescoresPAR3$Player), function(x) holescoresPAR3 %>% filter(Player == x) %>% filter(!duplicated(Date)) %>% na.omit() %>% nrow(), USE.NAMES = T)+1, TotalHoles = sapply(unique(holescoresFULL$Player), function(x) holescoresFULL %>% filter(Player == x) %>% na.omit() %>% nrow(), USE.NAMES = T), MoneySaved = sapply(unique(holescoresFULL$Player), function(x) holescoresFULL %>% filter(Player == x) %>% na.omit() %>% nrow(), USE.NAMES = T)*(34/18) + sapply(unique(holescoresPAR3$Player), function(x) holescoresPAR3 %>% filter(Player == x) %>% na.omit() %>% nrow(), USE.NAMES = T)*(15/18))
+RoundSummary<- rbind(Full = sapply(unique(holescoresFULL$Player), function(x) holescoresFULL %>% filter(Player == x) %>% filter(!duplicated(Date)) %>% na.omit() %>% nrow(), USE.NAMES = T)+1, Par3 = sapply(unique(holescoresPAR3$Player), function(x) holescoresPAR3 %>% filter(Player == x) %>% filter(!duplicated(Date)) %>% na.omit() %>% nrow(), USE.NAMES = T)+1, TotalHoles = sapply(unique(holescoresFULL$Player), function(x) holescoresFULL %>% filter(Player == x) %>% na.omit() %>% nrow(), USE.NAMES = T), MoneySaved = sapply(unique(holescoresFULL$Player), function(x) holescoresFULL %>% filter(Player == x) %>% na.omit() %>% nrow(), USE.NAMES = T)*(34/18) + sapply(unique(holescoresPAR3$Player), function(x) holescoresPAR3 %>% filter(Player == x) %>% na.omit() %>% nrow(), USE.NAMES = T)*(15/18))
 
 RoundSummary %>% kableExtra::kbl(caption = "Times played as members", align = "c", escape = FALSE, digits = 0) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria")
 
 ```
 
-**NOTE: The count for the full course includes rounds when 9 holes have been played as well as a full round. One Par3 scorecard was lost to the ether so the scores are not included but that round is still represented in the times played table.**
+**NOTE: The count for the full course includes rounds when 9 holes have been played as well as a full round. 2 Par3 scorecards were lost to the ether so the scores are not included but that round is still represented in the times played table. Another time on the full course we didn't bother scoring because of the major puddles on the course.**
 
 The formula used for working out how much our golf would have cost uses the full price of a round on the full course (£34) and the Par 3 course (£15) and therefore doesn't take into account discount rates at certain times.
 
@@ -176,7 +192,17 @@ HoleStatsAdjScoreSummary[HoleStatsAdjScoreSummary == 2] <- "double bogey"
 HoleStatsAdjScoreSummary[HoleStatsAdjScoreSummary == 3] <- "triple bogey"
 HoleStatsAdjScoreSummary[HoleStatsAdjScoreSummary == 4] <- "quad bogey"
 
-HoleStatsAdjScoreSummary %>% kableExtra::kbl(caption = "Summary by Individual Hole (full course only)", align = "c", escape = FALSE, digits = 0, col.names = rep(c("Best", "Median", "Average", "Worst"), 3), row.names = T) %>% kableExtra::kable_classic(full_width = T, html_font = "Cambria", lightable_options = "striped") %>% kableExtra::add_header_above(header = c("", "Ben" = 4, "Doug" = 4, "Lew" = 4), border_left = TRUE, border_right = TRUE, line = TRUE)
+for(col in 1:ncol(HoleStatsAdjScoreSummary)){
+  HoleStatsAdjScoreSummary[,col] <- ifelse(
+  HoleStatsAdjScoreSummary[,col] == "birdie",
+  cell_spec(HoleStatsAdjScoreSummary[,col], color = "green", bold = T),
+  ifelse(HoleStatsAdjScoreSummary[,col] == "par",
+  cell_spec(HoleStatsAdjScoreSummary[,col], color = "yellow", bold = T),      
+  cell_spec(HoleStatsAdjScoreSummary[,col], color = "black")
+))
+}
+
+HoleStatsAdjScoreSummary %>% kableExtra::kbl(caption = "Summary by Individual Hole (full course only)", align = "c", escape = FALSE, digits = 0, col.names = rep(c("Best", "Median", "Average", "Worst"), 3), row.names = T) %>% kableExtra::kable_classic(full_width = T, html_font = "Cambria", lightable_options = "striped") %>% kableExtra::add_header_above(header = c("", "Ben" = 4, "Doug" = 4, "Lew" = 4), border_left = TRUE, border_right = TRUE, line = TRUE) %>% column_spec(column = 5:8, background = "slategray1")
 
 HoleStatsAdjSD<- lapply(names(HoleStats), function(y) lapply(1:18, function(x) sd(HoleStats[[y]]["Score"][which(HoleStats[[y]][["Hole"]] == x),])))
 HoleStatsAdjSD<- lapply(HoleStatsAdjSD, unlist)
@@ -218,7 +244,17 @@ HoleStatsAdjScoreSummary[HoleStatsAdjScoreSummary == 2] <- "double bogey"
 HoleStatsAdjScoreSummary[HoleStatsAdjScoreSummary == 3] <- "triple bogey"
 HoleStatsAdjScoreSummary[HoleStatsAdjScoreSummary == 4] <- "quad bogey"
 
-HoleStatsAdjScoreSummary %>% kableExtra::kbl(caption = "Summary by Individual Hole (Par 3 course only)", align = "c", escape = FALSE, digits = 0, col.names = rep(c("Best", "Median", "Average", "Worst"), 3), row.names = T) %>% kableExtra::kable_classic(full_width = T, html_font = "Cambria", lightable_options = "striped") %>% kableExtra::add_header_above(header = c("", "Ben" = 4, "Doug" = 4, "Lew" = 4), border_left = TRUE, border_right = TRUE, line = TRUE)
+for(col in 1:ncol(HoleStatsAdjScoreSummary)){
+  HoleStatsAdjScoreSummary[,col] <- ifelse(
+  HoleStatsAdjScoreSummary[,col] == "birdie",
+  cell_spec(HoleStatsAdjScoreSummary[,col], color = "green", bold = T),
+  ifelse(HoleStatsAdjScoreSummary[,col] == "par",
+  cell_spec(HoleStatsAdjScoreSummary[,col], color = "yellow", bold = T),      
+  cell_spec(HoleStatsAdjScoreSummary[,col], color = "black")
+))
+}
+
+HoleStatsAdjScoreSummary %>% kableExtra::kbl(caption = "Summary by Individual Hole (Par 3 course only)", align = "c", escape = FALSE, digits = 0, col.names = rep(c("Best", "Median", "Average", "Worst"), 3), row.names = T) %>% kableExtra::kable_classic(full_width = T, html_font = "Cambria", lightable_options = "striped") %>% kableExtra::add_header_above(header = c("", "Ben" = 4, "Doug" = 4, "Lew" = 4), border_left = TRUE, border_right = TRUE, line = TRUE) %>% column_spec(column = 5:8, background = "slategray1")
 
 HoleStatsAdjSD<- lapply(names(HoleStats), function(y) lapply(1:18, function(x) sd(HoleStats[[y]]["Score"][which(HoleStats[[y]][["Hole"]] == x),])))
 HoleStatsAdjSD<- lapply(HoleStatsAdjSD, unlist)
@@ -228,6 +264,26 @@ MostConsistent<- lapply(HoleStatsAdjSD, function(x) which(x == min(x)))
 
 LeastConsistent<- lapply(HoleStatsAdjSD, function(x) which(x == max(x)))
 ```
+
+# Front vs Back comparison
+
+I think we all consider Thornbury to be stacked with harder holes at the end of the round. So how do our scores on the front and back 9s compare?
+
+```{r Front9vsBack9}
+FrontvsBack<- data.frame(na.omit(cbind(Front9 = unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) sum(golfscores1$holescoresFULL[[x]][["Score"]][golfscores1$holescoresFULL[[x]][["Player"]] == y & golfscores1$holescoresFULL[[x]][["Hole"]] %in% c(1:9)])))), Back9 = unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) sum(golfscores1$holescoresFULL[[x]][["Score"]][golfscores1$holescoresFULL[[x]][["Player"]] == y & golfscores1$holescoresFULL[[x]][["Hole"]] %in% c(10:18)])))), Player = c(rep("Ben", length(unique(golfscores1[["holescoresFULL"]]))), rep("Doug", length(unique(golfscores1[["holescoresFULL"]]))), rep("Lew", length(unique(golfscores1[["holescoresFULL"]])))), Date = as.Date(unlist(lapply(c("Ben", "Doug", "Lew"), function(y) lapply(names(golfscores1$holescoresFULL), function(x) unique(golfscores1$holescoresFULL[[x]][["Date"]][golfscores1$holescoresFULL[[x]][["Player"]] == y])))), origin = "1970-01-01"))))
+
+#I think the na.omit converts things to character so scores need to be returned to numeric
+FrontvsBack$Front9<- as.numeric(FrontvsBack$Front9)
+FrontvsBack$Back9<- as.numeric(FrontvsBack$Back9)
+
+FrontvsBackTable<- t(format(sapply(unique(FrontvsBack$Player), function(x) summary(subset(FrontvsBack$Front9, subset = FrontvsBack$Player == x)), USE.NAMES = T)[c(1,3,4,6),], digits = 2))
+
+FrontvsBackTable<- cbind(FrontvsBackTable, t(format(sapply(unique(FrontvsBack$Player), function(x) summary(subset(FrontvsBack$Back9, subset = FrontvsBack$Player == x)), USE.NAMES = T)[c(1,3,4,6),], digits = 2)))
+
+FrontvsBackTable %>% kableExtra::kbl(caption = "Front vs Back 9s", align = "c", escape = FALSE, digits = 0, col.names = rep(c("Best", "Median", "Average", "Worst"), 2)) %>% add_header_above(c(" ", "Front 9" = 4, "Back 9" = 4)) %>% column_spec(5, border_right = T) %>%  kableExtra::kable_classic(full_width = T, html_font = "Cambria")
+```
+
+As a group, we average `r format(summary(FrontvsBack$Front9)[["Mean"]], digits = 1)` strokes on the front 9 and `r format(summary(FrontvsBack$Back9)[["Mean"]], digits = 1)` strokes on the back 9. The best anyone has scored on the front 9 is `r min(FrontvsBack$Front9)` (the worst is `r max(FrontvsBack$Front9)`). The best anyone has scored on the back 9 is `r min(FrontvsBack$Back9)` (the worst is `r max(FrontvsBack$Back9)`).
 
 # Birdie watch
 
@@ -267,6 +323,8 @@ These three noble warriors will probably be scratch golfers in no time. So this 
 Handicap was calculated by taking the adjusted course score (max quadruple bogey per hole) over the last few rounds then dividing it by the number of rounds included. The official maximum handicap was 28 but it's been upped to 54 now! Par 3 courses have been excluded from the handicap calculations, as have any cheeky 9 hole rounds.
 
 > This graph would probably be better with a rolling summary. i.e. for the last 5 rounds record handicap after rounds 1,2,3 then 2,3,4 then 3,4,5. It'll be a better measure of progress over time. Work backwards from the last round using lapply and a sequence. Hard to implement.
+
+> Even better would be a proper handicap calculation where the worst and best 4 holes are removed to get a more meaningful gauge of play.
 
 ```{r HandicapTracker, echo=FALSE}
 holescores<- cbind(holescores, LimitAdjScore = ifelse(holescores$Adj_Score > 4, 2, holescores$Adj_Score))
@@ -317,4 +375,9 @@ handicapTracker<- pivot_longer(data = handicapTracker, cols = c("Ben", "Doug", "
 ggplot(data = handicapTracker, aes(x = Rounds, y = Handicap, group = Player)) + 
   geom_line(aes(color = Player), size = 1) + geom_point(aes(shape = Player)) + labs(title = "How amateur golfers handicaps change with practice.") +
   scale_x_reverse(breaks = seq(3,5,1))
+```
+
+
+```{r TODO, echo=FALSE}
+#Add best front and back 9s?
 ```
